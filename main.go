@@ -6,7 +6,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"hmrbcnto.com/gin-api/config"
+	"hmrbcnto.com/gin-api/handler"
 	db "hmrbcnto.com/gin-api/infastructure/db"
+	"hmrbcnto.com/gin-api/repository"
+	"hmrbcnto.com/gin-api/usecase"
 )
 
 func main() {
@@ -25,7 +28,14 @@ func main() {
 		log.Println(err)
 		os.Exit(1)
 	}
+
 	r := gin.Default()
+
+	// Initializing routes
+	userRepo := repository.NewUserRepo(client)
+	userUsecase := usecase.NewUserUsecase(userRepo)
+	handler.NewUserHandler(r, userUsecase)
+
 	r.GET("/hello", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "Hello world!",
