@@ -10,7 +10,7 @@ import (
 )
 
 type UserRepo interface {
-	CreateUser(*entities.User) (*entities.User, error)
+	CreateUser(*entities.CreateUserRequest) (*entities.User, error)
 	GetAllUsers() ([]entities.User, error)
 }
 
@@ -18,13 +18,13 @@ type userRepo struct {
 	db *mongo.Collection
 }
 
-func NewRepo(db *mongo.Client) UserRepo {
+func NewUserRepo(db *mongo.Client) UserRepo {
 	return &userRepo{
 		db: db.Database("kanban").Collection("users"),
 	}
 }
 
-func (ur *userRepo) CreateUser(user *entities.User) (*entities.User, error) {
+func (ur *userRepo) CreateUser(user *entities.CreateUserRequest) (*entities.User, error) {
 	// Creating context
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
 
