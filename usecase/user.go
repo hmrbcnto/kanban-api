@@ -3,6 +3,7 @@ package usecase
 import (
 	"errors"
 
+	"golang.org/x/crypto/bcrypt"
 	"hmrbcnto.com/gin-api/entities"
 	"hmrbcnto.com/gin-api/repository"
 )
@@ -33,7 +34,14 @@ func (userUsecase *userUsecase) CreateUser(userData *entities.CreateUserRequest)
 	// Additional business logic as needed
 
 	// Encrypt password with bcrypt here
-	user, err := userUsecase.userRepo.CreateUser(userData)
+	bytePassword := []byte(userData.Password)
+	hashedPassword := bcrypt.GenerateFromPassword(bytePassword, bcrypt.DefaultCost)
+
+	user, err := userUsecase.userRepo.CreateUser(*entities.CreateUserRequest{
+		email:    userData.Email,
+		password: hashedPassword,
+		username: userData.Username,
+	})
 
 	if err != nil {
 		return nil, err
