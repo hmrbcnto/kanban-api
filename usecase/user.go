@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"errors"
+
 	"hmrbcnto.com/gin-api/entities"
 	"hmrbcnto.com/gin-api/repository"
 )
@@ -21,6 +23,13 @@ func NewUserUsecase(repo repository.UserRepo) UserUsecase {
 }
 
 func (userUsecase *userUsecase) CreateUser(userData *entities.CreateUserRequest) (*entities.User, error) {
+	// Check if user with email already exists
+	user, _ := userUsecase.userRepo.GetUserByEmail(userData.Email)
+
+	if user != nil {
+		return nil, errors.New("Email already in use")
+	}
+
 	// Additional business logic as needed
 
 	// Encrypt password with bcrypt here

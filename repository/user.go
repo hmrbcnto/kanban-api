@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"hmrbcnto.com/gin-api/entities"
 )
@@ -12,6 +13,7 @@ import (
 type UserRepo interface {
 	CreateUser(*entities.CreateUserRequest) (*entities.User, error)
 	GetAllUsers() ([]entities.User, error)
+	GetUserByEmail(string) (*entities.User, error)
 }
 
 type userRepo struct {
@@ -76,4 +78,22 @@ func (ur *userRepo) GetAllUsers() ([]entities.User, error) {
 	}
 
 	return users, nil
+}
+
+func (ur *userRepo) GetUserByEmail(email string) (*entities.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
+
+	defer cancel()
+
+	user := &entities.User{}
+
+	query := bson.D{primitive.E{Key: "email", Value: email}}
+
+	err := ur.db.FindOne(ctx, query).Decode(&user)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
