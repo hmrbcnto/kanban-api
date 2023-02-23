@@ -35,12 +35,16 @@ func (userUsecase *userUsecase) CreateUser(userData *entities.CreateUserRequest)
 
 	// Encrypt password with bcrypt here
 	bytePassword := []byte(userData.Password)
-	hashedPassword := bcrypt.GenerateFromPassword(bytePassword, bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword(bytePassword, bcrypt.DefaultCost)
 
-	user, err := userUsecase.userRepo.CreateUser(*entities.CreateUserRequest{
-		email:    userData.Email,
-		password: hashedPassword,
-		username: userData.Username,
+	if err != nil {
+		return nil, errors.New("Internal Server Error")
+	}
+
+	user, err = userUsecase.userRepo.CreateUser(&entities.CreateUserRequest{
+		Email:    userData.Email,
+		Password: string(hashedPassword),
+		Username: userData.Username,
 	})
 
 	if err != nil {
